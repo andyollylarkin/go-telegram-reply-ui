@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	token := "7218408194:AAF1HGaQHRCRKSaXo809hB4Y_WC5GkMQJxE"
+	token := "<YOUR_BOT_TOKEN>"
 	b, err := tgbot.New(token)
 	if err != nil {
 		log.Fatal(err)
