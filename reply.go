@@ -53,7 +53,7 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 	onceCreate.Do(func() {
 		replyMessages = make(map[int]OnReplyCallback, 0)
 		r.bot.RegisterHandlerMatchFunc(func(update *models.Update) bool {
-			if update == nil || update.Message == nil {
+			if update == nil || update.Message == nil || update.Message.ReplyToMessage == nil {
 				return false
 			}
 
