@@ -66,7 +66,7 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 			}
 
 			return true
-		}, func(ctx context.Context, bot *bot.Bot, update *models.Update) {
+		}, func(ctx context.Context, botClient *bot.Bot, update *models.Update) {
 			if update == nil || update.Message == nil {
 				return
 			}
@@ -81,7 +81,17 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 				return
 			}
 
-			replyCallback(context.Background(), r.bot, update)
+			replyCallback(ctx, r.bot, update)
+
+			// delete reply messages
+			botClient.DeleteMessage(ctx, &bot.DeleteMessageParams{ // bot send
+				ChatID:    update.Message.Chat.ID,
+				MessageID: update.Message.ReplyToMessage.ID,
+			})
+			botClient.DeleteMessage(ctx, &bot.DeleteMessageParams{ // user reply
+				ChatID:    update.Message.Chat.ID,
+				MessageID: update.Message.ID,
+			})
 		})
 	})
 
