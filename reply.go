@@ -21,14 +21,14 @@ type Reply struct {
 	bot                   *bot.Bot
 	allowWithoutReply     bool
 	inputFieldPlaceholder string
-	parseMode models.ParseMode
+	parseMode             models.ParseMode
 }
 
 func New(bot *bot.Bot) *Reply {
 	return &Reply{
 		bot:               bot,
 		allowWithoutReply: false,
-		parseMode: models.ParseModeHTML,
+		parseMode:         models.ParseModeHTML,
 	}
 }
 
@@ -44,8 +44,10 @@ func (r *Reply) WithInputFieldPlaceholber(text string) *Reply {
 	return r
 }
 
-func (r *Reply) WithParseMode(mode models.ParseMode) {
+func (r *Reply) WithParseMode(mode models.ParseMode) *Reply {
 	r.parseMode = mode
+
+	return r
 }
 
 func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) error {
@@ -102,8 +104,8 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 	})
 
 	m, err := r.bot.SendMessage(context.Background(), &bot.SendMessageParams{
-		ChatID: toChat,
-		Text:   messageText,
+		ChatID:    toChat,
+		Text:      messageText,
 		ParseMode: r.parseMode,
 		ReplyMarkup: &models.ForceReply{
 			ForceReply:            true,
