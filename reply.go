@@ -66,12 +66,15 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 			}
 
 			msgMu.RLock()
-			defer msgMu.RUnlock()
 
 			_, ok := replyMessages[update.Message.ReplyToMessage.ID]
 			if !ok {
+				msgMu.RUnlock()
+
 				return false
 			}
+
+			msgMu.RUnlock()
 
 			return true
 		}, func(ctx context.Context, botClient *bot.Bot, update *models.Update) {
@@ -79,15 +82,15 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 				return
 			}
 
-			msgMu.Lock()
-			defer msgMu.Unlock()
-
-			defer delete(replyMessages, update.Message.ID)
-
+			msgMu.RLock()
 			replyCallback, ok := replyMessages[update.Message.ReplyToMessage.ID]
 			if !ok {
+				msgMu.RUnlock()
+
 				return
 			}
+
+			msgMu.RUnlock()
 
 			replyCallback(ctx, r.bot, update)
 
@@ -100,6 +103,12 @@ func (r *Reply) Send(toChat int64, messageText string, onReply OnReplyCallback) 
 				ChatID:    update.Message.Chat.ID,
 				MessageID: update.Message.ID,
 			})
+
+			msgMu.Lock()
+
+			delete(replyMessages, update.Message.ID)
+
+			msgMu.Unlock()
 		})
 	})
 
